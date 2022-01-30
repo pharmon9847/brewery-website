@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8 />
+  <title>NC Breweries</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js'></script>
+  <link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+  <script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" type="text/css" href="static/css/beerMap.css">
+  </head>
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">NC Breweries</a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/beerList">Find</a></li>
+          <li><a href="/beerMap">Map</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+    <div id='map'></div>
+    <script>
+      L.mapbox.accessToken = 'pk.eyJ1IjoicGhoYXJtb24iLCJhIjoiY2t6MDI3Nm8xMGR3ODJucDgxNTVpYW11MCJ9.Tp90syHniqX2Yzdcs7OC-g';
+      var map = L.mapbox.map('map')
+        .setView([35.78, -78.64], 18)
+        .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
+      
+      var customLayer = L.geoJson(null, {
+        onEachFeature: function(feature, layer) {
+            layer.bindPopup("<h3>" + feature.properties.breweries + "<h3><h3>Type of Brewery: " + feature.properties.brewery_type + '<h3><a href="' + feature.properties.website + '">' + feature.properties.website + "</a></h3>");
+          }
+      });
+      
+      var points = omnivore.geojson("/geoData", null, customLayer);
+
+      var markers = L.markerClusterGroup({
+        showCoverageOnHover: false
+      });
+
+      map.addLayer(markers);
+
+      points.on('ready', function() {
+        map.fitBounds(points.getBounds())
+        console.log(points.getLayers().length)
+        markers.addLayer(points);
+      });
+    </script>
+</body>
+</html>
